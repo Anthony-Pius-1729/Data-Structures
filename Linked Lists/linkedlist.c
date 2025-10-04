@@ -41,8 +41,7 @@ void insertNode (Node* refHead, int val, int position) {
 
 //Delete a Node
 void deleteNode (Node* head, int position) {
-
-
+//implementation to be added
 }
 
 //reverse linked list 
