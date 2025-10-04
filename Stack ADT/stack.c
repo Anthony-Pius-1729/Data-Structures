@@ -1,41 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const int size = 5;
-int Stack[size] = {};
+#define SIZE 5
+int Stack[SIZE] = {};
 int top = -1;
 
 void push(int n) {
+    if (top >= SIZE - 1) {
+        printf("Error: Stack overflow. Cannot push %d\n", n);
+        return;
+    }
     top++;
     Stack[top] = n;
 }
 
-void pop() {
+
+int pop() {
+    if (top < 0) {
+        printf("Error: Stack underflow. Cannot pop\n");
+        return -1;  
+    }
+    int value = Stack[top];
     top--;
-    Stack[top];
+    return value;
 }
 
-void printStack(int* Stack, int top) {
-    for (int i = top; i >= 0; i--){
-        printf("%d \n", Stack[i]);
+
+void printStack() {
+    if (top < 0) {
+        printf("Stack is empty\n");
+        return;
+    }
+
+    printf("Stack (top -> bottom):\n");
+    for (int i = top; i >= 0; i--) {
+        printf("%d\n", Stack[i]);
     }
 }
 
-int main () {
-
+int main() {
     push(5);
     push(6);
     push(8);
     push(-1);
+    push(10);
+    push(20); 
+
+    printStack();
+
+    int popped = pop();
+    if (popped != -1) printf("Popped: %d\n", popped);
+
+    printf("After pop:\n");
+    printStack();
 
 
-    printStack(Stack, top);
-
-    pop();
-
-    printf("After popped stack \n");
-
-    printStack(Stack, top);
+    while (top >= 0) pop();
+    pop(); 
 
     return 0;
 }
