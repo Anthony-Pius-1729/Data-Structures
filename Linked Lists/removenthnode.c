@@ -29,14 +29,10 @@
 
 struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 
-
     if (head == NULL) return NULL;
 
     struct ListNode* LL = reverseLL(head);
     int i = 1;
-
-    
-
     struct ListNode* temp = LL;
     struct ListNode* prev = NULL;
 

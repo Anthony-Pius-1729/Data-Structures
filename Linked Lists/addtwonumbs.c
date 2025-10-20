@@ -13,7 +13,7 @@
 
 struct ListNode {
       int val;
-      struct ListNode *next;
+      struct ListNode *right;
   };
 
 
@@ -27,7 +27,7 @@ struct ListNode {
     int* arr = (int*)malloc(10000 * sizeof(int));
     while (current != NULL) {
         arr[i++] = current->val;
-        current = current->next;
+        current = current->right;
     }
     *size = i;
     return arr;
@@ -68,14 +68,14 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
     
     struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
     head->val = resultArray[0];
-    head->next = NULL;
+    head->right = NULL;
     struct ListNode* current = head;
     
     for (int i = 1; i < resultSize; i++) {
         struct ListNode* nextNode = (struct ListNode*)malloc(sizeof(struct ListNode));
         nextNode->val = resultArray[i];
-        nextNode->next = NULL;
-        current->next = nextNode;
+        nextNode->right = NULL;
+        current->right = nextNode;
         current = nextNode;
     }
     
