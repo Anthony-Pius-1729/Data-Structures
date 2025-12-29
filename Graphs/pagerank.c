@@ -20,6 +20,62 @@ typedef struct Graph {
     int capacity;
 } Graph;
 
+typedef struct QNode {
+    int val;
+    struct Node* next;
+}QNode;
+
+typedef struct Queue {
+    QNode* front;
+    QNode* rear;
+    int count;
+}Queue;
+
+Queue* initQ () {
+    Queue* q = (Queue*)malloc(sizeof(Queue));
+    q->count = 0;
+    q->front = NULL;
+    q->rear = NULL;
+
+    return q;
+}
+
+void enqueue (Queue* q, int val) {
+    QNode* node = (QNode*)malloc(sizeof(QNode));
+    node->val = val;
+    node->next =  NULL;
+
+    if (q->count == 0) {
+        q->front = node;
+        q->rear = node;
+    } else {
+    q->rear->next = node;
+    q->rear = node;
+    }
+
+    q->count++;
+}
+
+QNode* dequeue (Queue* q) {
+
+    if (q->front == NULL) {
+        printf("Empty Queue");
+        return NULL;
+    }
+
+    QNode* front = q->front;
+    q->front  = front->next;
+
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+
+    q->count--;
+
+    return front;
+
+}
+
 Graph* initGraph () {
     Graph* g = (Graph*)malloc(sizeof(Graph));
     g->capacity = 0;
@@ -219,9 +275,13 @@ double* pagerank_random_walk(Graph* g, double damping_factor, int num_steps) {
     return visits;
 }
 
-int** upper_triangular_matrix ( int n, int graph[n][n]) {
+int** upper_triangular_matrix(int n, int (*graph)[n]) {
 
-    int** upper_triangle = (int **)malloc(sizeof(int*) * n);
+    int **upper_triangle = malloc(sizeof(int*) * n);
+
+    for (int i = 0; i < n; i++) {
+        upper_triangle[i] = malloc(sizeof(int) * n);
+    }
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -231,16 +291,11 @@ int** upper_triangular_matrix ( int n, int graph[n][n]) {
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            if ((i == j )&& (j + 1 <= n)) {
-                for (int c = j+1; c < n; c++ ) {
-                    // graph[i][c] = 0;
-                    upper_triangle[i][c] = 0;
-                }
-                
+            if (j < i)  {
+                upper_triangle[i][j] = 0;
             } else {
                 upper_triangle[i][j] = graph[i][j];
             }
-
         }
     }
 
@@ -305,6 +360,7 @@ int main () {
     printf("Upper Triangular Matrix \n");
 
     int** half_mat = upper_triangular_matrix(12, g);
+    Graph* upper_g = initGraph();
 
     for (int i = 0; i < graph->num_nodes; i++) {
         for (int j = 0; j < graph->num_nodes; j++) {
@@ -313,5 +369,20 @@ int main () {
         printf("\n");
     }
     printf("\n");
+    for (int i = 0; i < 12; i++) {
+        addNode(upper_g, i);
+    }
+
+    for (int i = 0; i < 12; i++) {
+
+        for (int j = 0; j < 12; j++) {
+            if (half_mat[i][j] != 0 ) {
+                addEdge(upper_g->nodes[i], upper_g->nodes[j], half_mat[i][j]);
+                addEdge(upper_g->nodes[j], upper_g->nodes[i], half_mat[i][j]);
+                printf("Created edge from Node %d to Node %d\n", upper_g->nodes[i]->webpage_id + 1, upper_g->nodes[j]->webpage_id + 1);
+                }
+            }
+
+    }
     return 0;
 }
