@@ -195,9 +195,6 @@ void removeEdge (Node* a, Node* b) {
 // Posted by John Bode
 // Retrieved 2025-12-27, License - CC BY-SA 3.0
 
-
-
-
 void printGraph (Graph* g) {
     for (int i = 0; i < g->num_nodes; i++) {
         for (int j = 0; j < g->nodes[i]->num_adj; j++) {
@@ -231,48 +228,57 @@ double random_0_1(void) {
 
 //Actual PageRank Algorithm Implementation 
 double* pagerank_random_walk(Graph* g, double damping_factor, int num_steps) {
-
+    int* visits = (int*)malloc(sizeof(int)*g->num_nodes);
+    double* ranks = (double*)malloc(sizeof(double)* g->num_nodes);
     int sum = 0;
 
-    double* visits = (double*)malloc(sizeof(double) * g->num_nodes);
-
     for (int i = 0; i < g->num_nodes; i++) {
-        visits[i] = 0.0;
+        visits[i] = 0;
     }
 
-    int rand_index = rand() % g->num_nodes;
-    Node* surfer = g->nodes[rand_index];
-    visits[rand_index] += 1;
+    int rand_int = rand() % g->num_nodes;
+    int curr = rand_int;
+    Node* randNode = g->nodes[rand_int];
 
-    for (int i = 0; i < num_steps; i++) {
 
-            double decision_factor = random_0_1();
+    for ( int i = 0; i < num_steps; i++) {
 
-            if (decision_factor <= damping_factor && surfer->num_adj > 0) {
+        double decision_factor = (double)(rand() % 101)/100.0;
 
-                int rand_adj = rand() % surfer->num_adj;
-                surfer = surfer->adjacents[rand_adj]->dst;
-                
-            } else {
-
-                surfer = g->nodes[rand() % g->num_nodes];
-
+        if (decision_factor < 0.85 && randNode->num_adj != 0 ) {
+            int total_links  = 0;
+            for (int i = 0; i < randNode->num_adj; i++) {
+                total_links += randNode->adjacents[i]->num_link;
             }
+            int rand_link = rand() % total_links;
+            int total = 0;
+            for (int k = 0; k < randNode->num_adj; k++) {
+                total += randNode->adjacents[k]->num_link;
+                if (rand_link < total) {
+                    randNode = randNode->adjacents[k]->dst;
+                    break;
+                }
+                
+            }
+            curr = randNode->webpage_id;
+        } else {
+            randNode = g->nodes[rand() % g->num_nodes];
+            curr = randNode->webpage_id;
+        }
 
-            visits[surfer->webpage_id ] += 1;
-        
+        visits[curr] += 1;
     }
 
-    //normalize 
     for (int i = 0; i < g->num_nodes; i++) {
         sum += visits[i];
     }
 
     for (int i = 0; i < g->num_nodes; i++) {
-        visits[i] = (double) visits[i] / (double) sum;
+        ranks[i] = (double) visits[i] / sum;
     }
 
-    return visits;
+    return ranks;
+    
 }
 
 int** upper_triangular_matrix(int n, int (*graph)[n]) {
@@ -302,6 +308,36 @@ int** upper_triangular_matrix(int n, int (*graph)[n]) {
     return upper_triangle;
 }
 
+int get_shortest_path (Graph* g, int src_id, int dst_id) {
+    int* visited = (int*)malloc(sizeof(int) * g->num_nodes);
+    int* dist = (int*)malloc(sizeof(int) * g->num_nodes);
+
+    for (int i = 0; i < g->num_nodes; i++) {
+        dist[i] = -1;
+        visited[i] = 0;
+    }
+
+    Queue* q = initQ();
+
+    visited[src_id] = 1;
+    dist[src_id] = 0; 
+    enqueue(q, src_id);
+
+    while (q->front != NULL) {
+        QNode* u = dequeue(q);
+
+        for (int i = 0; i < g->nodes[u->val]->num_adj; i++) {
+            int adj_id = g->nodes[u->val]->webpage_id;
+            if (!visited[i]) {
+                visited[i] = 1;
+                dist[adj_id] = dist[u->val] + 1;
+                enqueue(q, g->nodes[u->val]->adjacents[i]->dst->webpage_id);   
+            }
+        }
+    }
+
+    return -1;
+}
 
 
 int main () {
@@ -384,5 +420,10 @@ int main () {
             }
 
     }
+    int a = 1;
+    int b = 10;
+    int shortest_path = get_shortest_path(graph, 1, 10);
+
+    printf("Shortest path between %d and %d is %d ",a,b, shortest_path);
     return 0;
 }
